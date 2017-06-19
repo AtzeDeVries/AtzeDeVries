@@ -1,0 +1,43 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: graphite
+  namespace: monitoring
+  labels:
+    app: graphite
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: graphite
+    spec:
+      containers:
+      - image: ennexa/graphite
+        name: graphite
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+          name: webui
+          protocol: TCP
+        - containerPort: 2003
+          name: carbon
+          protocol: TCP
+        # env:
+        #        resources:
+        #          # keep request = limit to keep this container in guaranteed class
+        #          limits:
+        #            cpu: 100m
+        #            memory: 100Mi
+        #          requests:
+        #            cpu: 100m
+        #            memory: 100Mi
+        volumeMounts:
+        - name: graphite-persistent-storage
+          mountPath: /opt/graphite/storage/whisper/graphite
+      volumes:
+      - name: graphite-persistent-storage
+        emptyDir:
+        #persistentVolumeClaim:
+        #  claimName: graphite-pvc
